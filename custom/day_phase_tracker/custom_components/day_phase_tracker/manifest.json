@@ -1,0 +1,12 @@
+{
+  "domain": "day_phase_tracker",
+  "name": "Day Phase Tracker",
+  "version": "1.0.0",
+  "documentation": "https://github.com/Levtos/day-phase-tracker",
+  "dependencies": [],
+  "requirements": [],
+  "codeowners": [],
+  "iot_class": "calculated",
+  "integration_type": "service",
+  "config_flow": true
+}

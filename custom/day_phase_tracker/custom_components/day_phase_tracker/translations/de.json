@@ -1,0 +1,32 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Day Phase Tracker",
+        "description": "Erstelle eine benannte Tagesphasen-Instanz.",
+        "data": {
+          "name": "Instanzname"
+        }
+      },
+      "phases": {
+        "title": "Phasen definieren",
+        "description": "JSON-Liste mit Phasen eingeben (name, elevation_trigger, direction, fallback_time).",
+        "data": {
+          "phases": "Phasen (JSON)"
+        }
+      },
+      "master": {
+        "title": "Masterphasen (optional)",
+        "description": "JSON-Objekt eingeben, das Masterphase auf Unterphasen mappt.",
+        "data": {
+          "master_phases": "Masterphasen (JSON)"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Name ist erforderlich",
+      "invalid_phases": "Ungültige Phasendefinition",
+      "invalid_master": "Ungültiges Masterphasen-Mapping"
+    }
+  }
+}

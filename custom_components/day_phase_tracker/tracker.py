@@ -53,8 +53,9 @@ class DayPhaseTracker:
         if next_noon is None:
             return True
         local_noon = dt_util.as_local(next_noon)
-        previous_noon = local_noon - timedelta(days=1)
-        return previous_noon <= now < local_noon
+        # next_noon is today's noon if we're before noon (rising),
+        # or tomorrow's noon if we're past noon (falling).
+        return local_noon.date() == now.date()
 
     def _phase_matches_elevation(self, phase: PhaseDefinition, elevation: float, is_rising: bool) -> bool:
         if phase.direction == DIRECTION_RISING:

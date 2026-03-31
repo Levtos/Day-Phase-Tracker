@@ -1,0 +1,32 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Day Phase Tracker",
+        "description": "Create a named day-phase instance.",
+        "data": {
+          "name": "Instance name"
+        }
+      },
+      "phases": {
+        "title": "Define phases",
+        "description": "Enter a JSON list of phases (name, elevation_trigger, direction, fallback_time).",
+        "data": {
+          "phases": "Phases (JSON)"
+        }
+      },
+      "master": {
+        "title": "Master phases (optional)",
+        "description": "Enter a JSON object that maps a master phase to sub-phases.",
+        "data": {
+          "master_phases": "Master phases (JSON)"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Name is required",
+      "invalid_phases": "Invalid phase definition",
+      "invalid_master": "Invalid master-phase mapping"
+    }
+  }
+}

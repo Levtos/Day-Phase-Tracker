@@ -8,25 +8,47 @@
           "name": "Instanzname"
         }
       },
-      "phases": {
-        "title": "Phasen definieren",
-        "description": "JSON-Liste mit Phasen eingeben (name, elevation_trigger, direction, fallback_time).",
+      "phase_count": {
+        "title": "Anzahl der Phasen",
+        "description": "Wie viele Phasen sollen definiert werden? (Minimum: 2, Maximum: 12)",
         "data": {
-          "phases": "Phasen (JSON)"
+          "phase_count": "Anzahl der Phasen"
         }
       },
-      "master": {
-        "title": "Masterphasen (optional)",
-        "description": "JSON-Objekt eingeben, das Masterphase auf Unterphasen mappt.",
+      "phase": {
+        "title": "Phase {phase_num} von {phase_count}",
+        "description": "Name, Elevationsschwelle, Richtung und Fallback-Zeit für diese Phase festlegen.",
         "data": {
-          "master_phases": "Masterphasen (JSON)"
+          "name": "Phasenname",
+          "elevation_trigger": "Elevationsschwelle (°)",
+          "direction": "Richtung",
+          "fallback_time": "Fallback-Zeit"
+        }
+      },
+      "master_menu": {
+        "title": "Masterphasen (optional)",
+        "description": "Bisher {group_count} Masterphase(n) definiert. Gruppen hinzufügen oder abschließen.",
+        "menu_options": {
+          "master_add": "Masterphase hinzufügen",
+          "master_done": "Fertig — Integration erstellen"
+        }
+      },
+      "master_add": {
+        "title": "Masterphase hinzufügen",
+        "description": "Gruppenname vergeben und zugehörige Unterphasen auswählen.",
+        "data": {
+          "master_name": "Gruppenname",
+          "sub_phases": "Unterphasen"
         }
       }
     },
     "error": {
-      "name_required": "Name ist erforderlich",
-      "invalid_phases": "Ungültige Phasendefinition",
-      "invalid_master": "Ungültiges Masterphasen-Mapping"
+      "name_required": "Name darf nicht leer sein",
+      "duplicate_phase_name": "Dieser Phasenname wird bereits verwendet",
+      "min_phases": "Bitte mindestens eine Unterphase auswählen"
+    },
+    "abort": {
+      "already_configured": "Eine Instanz mit diesem Namen existiert bereits"
     }
   }
 }

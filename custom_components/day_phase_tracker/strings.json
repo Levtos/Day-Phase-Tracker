@@ -3,30 +3,52 @@
     "step": {
       "user": {
         "title": "Day Phase Tracker",
-        "description": "Create a named day-phase instance.",
+        "description": "Create a named day-phase tracker instance.",
         "data": {
           "name": "Instance name"
         }
       },
-      "phases": {
-        "title": "Define phases",
-        "description": "Enter a JSON list of phases (name, elevation_trigger, direction, fallback_time).",
+      "phase_count": {
+        "title": "Number of phases",
+        "description": "How many phases do you want to define? (Minimum: 2, Maximum: 12)",
         "data": {
-          "phases": "Phases (JSON)"
+          "phase_count": "Number of phases"
         }
       },
-      "master": {
-        "title": "Master phases (optional)",
-        "description": "Enter a JSON object that maps a master phase to sub-phases.",
+      "phase": {
+        "title": "Phase {phase_num} of {phase_count}",
+        "description": "Define name, elevation threshold, direction and fallback time for this phase.",
         "data": {
-          "master_phases": "Master phases (JSON)"
+          "name": "Phase name",
+          "elevation_trigger": "Elevation threshold (°)",
+          "direction": "Direction",
+          "fallback_time": "Fallback time"
+        }
+      },
+      "master_menu": {
+        "title": "Master phases (optional)",
+        "description": "{group_count} master phase group(s) defined so far. Add groups to combine phases, or finish.",
+        "menu_options": {
+          "master_add": "Add master phase group",
+          "master_done": "Finish — create integration"
+        }
+      },
+      "master_add": {
+        "title": "Add master phase group",
+        "description": "Give the group a name and select which sub-phases belong to it.",
+        "data": {
+          "master_name": "Group name",
+          "sub_phases": "Sub-phases"
         }
       }
     },
     "error": {
-      "name_required": "Name is required",
-      "invalid_phases": "Invalid phase definition",
-      "invalid_master": "Invalid master-phase mapping"
+      "name_required": "Name must not be empty",
+      "duplicate_phase_name": "This phase name is already used",
+      "min_phases": "Please select at least one sub-phase"
+    },
+    "abort": {
+      "already_configured": "An instance with this name already exists"
     }
   }
 }

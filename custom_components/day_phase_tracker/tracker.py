@@ -38,8 +38,9 @@ class DayPhaseTracker:
         self._today_date = dt_util.now().date()
 
     def _parse_clock(self, value: str, now: datetime) -> datetime:
-        hour, minute = value.split(":", 1)
-        return now.replace(hour=int(hour), minute=int(minute), second=0, microsecond=0)
+        # Accepts both "HH:MM" and "HH:MM:SS" (TimeSelector returns HH:MM:SS)
+        parts = value.split(":")
+        return now.replace(hour=int(parts[0]), minute=int(parts[1]), second=0, microsecond=0)
 
     def _is_rising(self, now: datetime) -> bool:
         sun = self.hass.states.get("sun.sun")

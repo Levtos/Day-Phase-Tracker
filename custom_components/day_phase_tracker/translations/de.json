@@ -5,28 +5,82 @@
         "title": "Day Phase Tracker",
         "description": "Erstelle eine benannte Tagesphasen-Instanz.",
         "data": {
-          "name": "Instanzname"
+          "name": "Instanzname",
+          "sun_entity": "Sonnen-Entität"
         }
       },
-      "phases": {
-        "title": "Phasen definieren",
-        "description": "JSON-Liste mit Phasen eingeben (name, elevation_trigger, direction, fallback_time).",
+      "phase_count": {
+        "title": "Anzahl der Phasen",
+        "description": "Wie viele Phasen sollen definiert werden? (Minimum: 2, Maximum: 12)",
         "data": {
-          "phases": "Phasen (JSON)"
+          "phase_count": "Anzahl der Phasen"
         }
       },
-      "master": {
+      "phase": {
+        "title": "Phase {phase_num} von {phase_count}",
+        "description": "Solares Ereignis, Richtung und Fallback-Zeit für diese Phase festlegen.",
+        "data": {
+          "name": "Phasenname",
+          "elevation_preset": "Solares Ereignis / Elevation",
+          "direction": "Richtung",
+          "fallback_time": "Früheste Startzeit (Fallback)"
+        }
+      },
+      "phase_custom": {
+        "title": "Benutzerdefinierte Elevation – Phase {phase_num} von {phase_count}",
+        "description": "Genaue Elevationsschwelle in Grad für \"{phase_name}\" eingeben.",
+        "data": {
+          "elevation_trigger": "Elevationsschwelle (°)"
+        }
+      },
+      "phase_extra": {
+        "title": "Bedingungen – Phase {phase_num} von {phase_count}: \"{phase_name}\"",
+        "description": "Alle Felder optional — leer lassen zum Überspringen.",
+        "data": {
+          "time_max": "Späteste Endzeit (HH:MM, leer = kein Limit)",
+          "lux_entity": "Lux-Sensor (optional)",
+          "lux_threshold": "Lux-Schwellenwert",
+          "lux_operator": "Lux mit Elevation verknüpfen via"
+        }
+      },
+      "master_menu": {
         "title": "Masterphasen (optional)",
-        "description": "JSON-Objekt eingeben, das Masterphase auf Unterphasen mappt.",
+        "description": "Bisher {group_count} Masterphase(n) definiert. Gruppen hinzufügen oder abschließen.",
+        "menu_options": {
+          "master_add": "Masterphase hinzufügen",
+          "master_done": "Fertig — Integration erstellen"
+        }
+      },
+      "master_add": {
+        "title": "Masterphase hinzufügen",
+        "description": "Gruppenname vergeben und zugehörige Unterphasen auswählen.",
         "data": {
-          "master_phases": "Masterphasen (JSON)"
+          "master_name": "Gruppenname",
+          "sub_phases": "Unterphasen"
         }
       }
     },
     "error": {
-      "name_required": "Name ist erforderlich",
-      "invalid_phases": "Ungültige Phasendefinition",
-      "invalid_master": "Ungültiges Masterphasen-Mapping"
+      "name_required": "Name darf nicht leer sein",
+      "duplicate_phase_name": "Dieser Phasenname wird bereits verwendet",
+      "min_phases": "Bitte mindestens eine Unterphase auswählen",
+      "invalid_time": "Ungültige Zeit — Format HH:MM verwenden (z.B. 20:00)"
+    },
+    "abort": {
+      "already_configured": "Eine Instanz mit diesem Namen existiert bereits"
+    }
+  },
+  "selector": {
+    "elevation_preset": {
+      "options": {
+        "astronomical_twilight": "Astronomische Dämmerung (−18°)",
+        "nautical_twilight": "Nautische Dämmerung (−12°)",
+        "civil_twilight": "Bürgerliche Dämmerung (−6°)",
+        "sunrise_sunset": "Sonnenaufgang / Sonnenuntergang (−0,83°)",
+        "golden_hour": "Goldene Stunde (+6°)",
+        "high_sun": "Hohe Sonne (+45°)",
+        "custom": "Benutzerdefiniert…"
+      }
     }
   }
 }

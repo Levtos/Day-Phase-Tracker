@@ -24,6 +24,8 @@ from .const import (
     CONF_MASTER_PHASES,
     CONF_NAME,
     CONF_PHASES,
+    CONF_SUN_ENTITY,
+    DEFAULT_SUN_ENTITY,
 )
 from .tracker import DayPhaseTracker
 
@@ -39,6 +41,7 @@ async def async_setup_entry(
         hass,
         config[CONF_PHASES],
         config.get(CONF_MASTER_PHASES, {}),
+        config.get(CONF_SUN_ENTITY, DEFAULT_SUN_ENTITY),
     )
 
     day_sensor = DayPhaseSensor(entry, tracker, config[CONF_NAME])
@@ -62,8 +65,9 @@ class BasePhaseSensor(SensorEntity):
         self._unsubscribers: list = []
 
     async def async_added_to_hass(self) -> None:
+        entities = [self._tracker.sun_entity] + self._tracker.lux_entities
         self._unsubscribers.append(
-            async_track_state_change_event(self.hass, ["sun.sun"], self._handle_trigger)
+            async_track_state_change_event(self.hass, entities, self._handle_trigger)
         )
         self._unsubscribers.append(
             async_track_time_interval(self.hass, self._handle_trigger, timedelta(seconds=60))

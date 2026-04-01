@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from .const import DIRECTION_FALLING, DIRECTION_RISING
+from .const import (
+    DEFAULT_SUN_ENTITY,
+    DIRECTION_FALLING,
+    DIRECTION_RISING,
+    LUX_OPERATOR_AND,
+)
 
 
 @dataclass(slots=True)
@@ -17,19 +22,38 @@ class PhaseDefinition:
     elevation_trigger: float
     direction: str
     fallback_time: str
+    time_max: str | None = None
+    lux_entity: str | None = None
+    lux_threshold: float | None = None
+    lux_operator: str = LUX_OPERATOR_AND
 
 
 class DayPhaseTracker:
     """Compute current phase and metadata."""
 
-    def __init__(self, hass: HomeAssistant, phases: list[dict], master_phases: dict[str, list[str]]):
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        phases: list[dict],
+        master_phases: dict[str, list[str]],
+        sun_entity: str = DEFAULT_SUN_ENTITY,
+    ):
         self.hass = hass
+        self.sun_entity = sun_entity
         self.phases = [
             PhaseDefinition(
                 name=item["name"],
                 elevation_trigger=float(item["elevation_trigger"]),
                 direction=item["direction"],
                 fallback_time=item["fallback_time"],
+                time_max=item.get("time_max"),
+                lux_entity=item.get("lux_entity"),
+                lux_threshold=(
+                    float(item["lux_threshold"])
+                    if item.get("lux_threshold") is not None
+                    else None
+                ),
+                lux_operator=item.get("lux_operator", LUX_OPERATOR_AND),
             )
             for item in phases
         ]
@@ -37,12 +61,18 @@ class DayPhaseTracker:
         self.today_hits: dict[str, str | None] = {phase.name: None for phase in self.phases}
         self._today_date = dt_util.now().date()
 
+    @property
+    def lux_entities(self) -> list[str]:
+        """Unique lux sensor entity IDs used across all phases."""
+        return list({p.lux_entity for p in self.phases if p.lux_entity})
+
     def _parse_clock(self, value: str, now: datetime) -> datetime:
-        hour, minute = value.split(":", 1)
-        return now.replace(hour=int(hour), minute=int(minute), second=0, microsecond=0)
+        # Accepts both "HH:MM" and "HH:MM:SS" (TimeSelector returns HH:MM:SS)
+        parts = value.split(":")
+        return now.replace(hour=int(parts[0]), minute=int(parts[1]), second=0, microsecond=0)
 
     def _is_rising(self, now: datetime) -> bool:
-        sun = self.hass.states.get("sun.sun")
+        sun = self.hass.states.get(self.sun_entity)
         if not sun:
             return True
         next_noon_raw = sun.attributes.get("next_noon")
@@ -68,6 +98,18 @@ class DayPhaseTracker:
 
         return False
 
+    def _phase_matches_lux(self, phase: PhaseDefinition) -> bool:
+        """Return True when the phase's lux condition is satisfied."""
+        if not phase.lux_entity or phase.lux_threshold is None:
+            return True
+        lux_state = self.hass.states.get(phase.lux_entity)
+        if not lux_state:
+            return False
+        try:
+            return float(lux_state.state) <= phase.lux_threshold
+        except (ValueError, TypeError):
+            return False
+
     def calculate(self) -> dict:
         """Calculate the active phase and attributes."""
         now = dt_util.now()
@@ -75,7 +117,7 @@ class DayPhaseTracker:
             self.today_hits = {phase.name: None for phase in self.phases}
             self._today_date = now.date()
 
-        sun = self.hass.states.get("sun.sun")
+        sun = self.hass.states.get(self.sun_entity)
         elevation = float(sun.attributes.get("elevation", 0.0)) if sun else 0.0
         is_rising = self._is_rising(now)
 
@@ -83,11 +125,34 @@ class DayPhaseTracker:
         trigger = f"fallback >= {matched.fallback_time}"
 
         for phase in self.phases:
+            # Hard time ceiling: skip phase entirely if past time_max
+            if phase.time_max:
+                time_max_dt = self._parse_clock(phase.time_max, now)
+                if now >= time_max_dt:
+                    continue
+
             fallback_dt = self._parse_clock(phase.fallback_time, now)
-            if self._phase_matches_elevation(phase, elevation, is_rising):
+
+            # Elevation condition
+            elev_ok = self._phase_matches_elevation(phase, elevation, is_rising)
+
+            # Combine elevation with optional lux condition
+            if phase.lux_entity:
+                lux_ok = self._phase_matches_lux(phase)
+                if phase.lux_operator == LUX_OPERATOR_AND:
+                    signal = elev_ok and lux_ok
+                else:  # OR
+                    signal = elev_ok or lux_ok
+            else:
+                signal = elev_ok
+
+            if signal:
                 matched = phase
                 comparator = ">=" if phase.direction == DIRECTION_RISING else "<="
-                trigger = f"elevation {comparator} {phase.elevation_trigger}°"
+                trig = f"elevation {comparator} {phase.elevation_trigger}°"
+                if phase.lux_entity:
+                    trig += f" {phase.lux_operator.upper()} lux <= {phase.lux_threshold}"
+                trigger = trig
             elif now >= fallback_dt:
                 matched = phase
                 trigger = f"fallback >= {phase.fallback_time}"

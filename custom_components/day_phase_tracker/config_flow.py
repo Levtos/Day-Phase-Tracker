@@ -28,6 +28,7 @@ from .const import (
     CONF_SUN_ENTITY,
     DEFAULT_SUN_ENTITY,
     DOMAIN,
+    ELEVATION_PRESETS,
 )
 
 _DIRECTION_OPTIONS = [
@@ -47,6 +48,8 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._phase_count: int = 0
         self._phases: list[dict[str, Any]] = []
         self._master_phases: dict[str, list[str]] = {}
+        # Holds name/direction/fallback while the user picks a custom elevation
+        self._pending_phase: dict[str, Any] = {}
 
     # ------------------------------------------------------------------
     # Step 1: instance name
@@ -121,13 +124,16 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             elif name in {p["name"] for p in self._phases}:
                 errors["name"] = "duplicate_phase_name"
             else:
+                self._pending_phase = {
+                    "name": name,
+                    "direction": user_input["direction"],
+                    "fallback_time": user_input["fallback_time"],
+                }
+                preset = user_input["elevation_preset"]
+                if preset == "custom":
+                    return await self.async_step_phase_custom()
                 self._phases.append(
-                    {
-                        "name": name,
-                        "elevation_trigger": float(user_input["elevation_trigger"]),
-                        "direction": user_input["direction"],
-                        "fallback_time": user_input["fallback_time"],
-                    }
+                    {**self._pending_phase, "elevation_trigger": ELEVATION_PRESETS[preset]}
                 )
                 if len(self._phases) >= self._phase_count:
                     return await self.async_step_master_menu()
@@ -138,8 +144,12 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required("name"): TextSelector(),
-                    vol.Required("elevation_trigger"): NumberSelector(
-                        NumberSelectorConfig(min=-90, max=90, step=0.1)
+                    vol.Required("elevation_preset"): SelectSelector(
+                        SelectSelectorConfig(
+                            options=list(ELEVATION_PRESETS.keys()),
+                            mode=SelectSelectorMode.LIST,
+                            translation_key="elevation_preset",
+                        )
                     ),
                     vol.Required("direction"): SelectSelector(
                         SelectSelectorConfig(
@@ -151,6 +161,41 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             ),
             description_placeholders={
+                "phase_num": str(idx + 1),
+                "phase_count": str(self._phase_count),
+            },
+            errors=errors,
+        )
+
+    async def async_step_phase_custom(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Sub-step shown only when the user picks 'custom' elevation."""
+        idx = len(self._phases)
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            self._phases.append(
+                {
+                    **self._pending_phase,
+                    "elevation_trigger": float(user_input["elevation_trigger"]),
+                }
+            )
+            if len(self._phases) >= self._phase_count:
+                return await self.async_step_master_menu()
+            return await self.async_step_phase()
+
+        return self.async_show_form(
+            step_id="phase_custom",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("elevation_trigger"): NumberSelector(
+                        NumberSelectorConfig(min=-90, max=90, step=0.1)
+                    )
+                }
+            ),
+            description_placeholders={
+                "phase_name": self._pending_phase.get("name", ""),
                 "phase_num": str(idx + 1),
                 "phase_count": str(self._phase_count),
             },

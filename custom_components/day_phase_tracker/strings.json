@@ -18,12 +18,19 @@
       },
       "phase": {
         "title": "Phase {phase_num} of {phase_count}",
-        "description": "Define name, elevation threshold, direction and fallback time for this phase.",
+        "description": "Define name, solar event, direction and fallback time for this phase.",
         "data": {
           "name": "Phase name",
-          "elevation_trigger": "Elevation threshold (°)",
+          "elevation_preset": "Solar event / elevation",
           "direction": "Direction",
           "fallback_time": "Fallback time"
+        }
+      },
+      "phase_custom": {
+        "title": "Custom elevation – Phase {phase_num} of {phase_count}",
+        "description": "Enter the exact elevation threshold in degrees for \"{phase_name}\".",
+        "data": {
+          "elevation_trigger": "Elevation threshold (°)"
         }
       },
       "master_menu": {
@@ -50,6 +57,19 @@
     },
     "abort": {
       "already_configured": "An instance with this name already exists"
+    }
+  },
+  "selector": {
+    "elevation_preset": {
+      "options": {
+        "astronomical_twilight": "Astronomical twilight (−18°)",
+        "nautical_twilight": "Nautical twilight (−12°)",
+        "civil_twilight": "Civil twilight (−6°)",
+        "sunrise_sunset": "Sunrise / Sunset (−0.83°)",
+        "golden_hour": "Golden hour (+6°)",
+        "high_sun": "High sun (+45°)",
+        "custom": "Custom value…"
+      }
     }
   }
 }

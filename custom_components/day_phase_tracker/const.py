@@ -28,3 +28,15 @@ ATTR_PHASES_IN_GROUP = "phases_in_group"
 DIRECTION_RISING = "rising"
 DIRECTION_FALLING = "falling"
 VALID_DIRECTIONS = {DIRECTION_RISING, DIRECTION_FALLING}
+
+# Standard solar elevation thresholds (degrees).
+# None marks the "enter manually" option in the config flow.
+ELEVATION_PRESETS: dict[str, float | None] = {
+    "astronomical_twilight": -18.0,
+    "nautical_twilight": -12.0,
+    "civil_twilight": -6.0,
+    "sunrise_sunset": -0.83,
+    "golden_hour": 6.0,
+    "high_sun": 45.0,
+    "custom": None,
+}

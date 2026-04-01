@@ -18,12 +18,19 @@
       },
       "phase": {
         "title": "Phase {phase_num} von {phase_count}",
-        "description": "Name, Elevationsschwelle, Richtung und Fallback-Zeit für diese Phase festlegen.",
+        "description": "Solares Ereignis, Richtung und Fallback-Zeit für diese Phase festlegen.",
         "data": {
           "name": "Phasenname",
-          "elevation_trigger": "Elevationsschwelle (°)",
+          "elevation_preset": "Solares Ereignis / Elevation",
           "direction": "Richtung",
           "fallback_time": "Fallback-Zeit"
+        }
+      },
+      "phase_custom": {
+        "title": "Benutzerdefinierte Elevation – Phase {phase_num} von {phase_count}",
+        "description": "Genaue Elevationsschwelle in Grad für \"{phase_name}\" eingeben.",
+        "data": {
+          "elevation_trigger": "Elevationsschwelle (°)"
         }
       },
       "master_menu": {
@@ -50,6 +57,19 @@
     },
     "abort": {
       "already_configured": "Eine Instanz mit diesem Namen existiert bereits"
+    }
+  },
+  "selector": {
+    "elevation_preset": {
+      "options": {
+        "astronomical_twilight": "Astronomische Dämmerung (−18°)",
+        "nautical_twilight": "Nautische Dämmerung (−12°)",
+        "civil_twilight": "Bürgerliche Dämmerung (−6°)",
+        "sunrise_sunset": "Sonnenaufgang / Sonnenuntergang (−0,83°)",
+        "golden_hour": "Goldene Stunde (+6°)",
+        "high_sun": "Hohe Sonne (+45°)",
+        "custom": "Benutzerdefiniert…"
+      }
     }
   }
 }

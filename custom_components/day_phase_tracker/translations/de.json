@@ -18,10 +18,10 @@
       },
       "phase": {
         "title": "Phase {phase_num} von {phase_count}",
-        "description": "Solares Ereignis, Richtung und Fallback-Zeit für diese Phase festlegen.",
+        "description": "Triggertyp, Richtung und Fallback-Zeit für diese Phase festlegen.",
         "data": {
           "name": "Phasenname",
-          "elevation_preset": "Solares Ereignis / Elevation",
+          "elevation_preset": "Trigger: Solares Ereignis / Elevation",
           "direction": "Richtung",
           "fallback_time": "Früheste Startzeit (Fallback)"
         }
@@ -33,9 +33,17 @@
           "elevation_trigger": "Elevationsschwelle (°)"
         }
       },
+      "phase_entity": {
+        "title": "Entitäts-Trigger – Phase {phase_num} von {phase_count}: \"{phase_name}\"",
+        "description": "Beliebige Entität auswählen (z.B. binary_sensor.sun2_dawn). Die Phase ist aktiv, wenn der Entitätszustand dem erwarteten Wert entspricht.",
+        "data": {
+          "trigger_entity": "Trigger-Entität",
+          "trigger_state": "Aktiv wenn Zustand gleich"
+        }
+      },
       "phase_extra": {
         "title": "Bedingungen – Phase {phase_num} von {phase_count}: \"{phase_name}\"",
-        "description": "Alle Felder optional — leer lassen zum Überspringen.",
+        "description": "Alle Felder optional — leer lassen zum Überspringen. Lux wird bei Entitäts-Triggern ignoriert.",
         "data": {
           "time_max": "Späteste Endzeit (HH:MM, leer = kein Limit)",
           "lux_entity": "Lux-Sensor (optional)",
@@ -64,7 +72,8 @@
       "name_required": "Name darf nicht leer sein",
       "duplicate_phase_name": "Dieser Phasenname wird bereits verwendet",
       "min_phases": "Bitte mindestens eine Unterphase auswählen",
-      "invalid_time": "Ungültige Zeit — Format HH:MM verwenden (z.B. 20:00)"
+      "invalid_time": "Ungültige Zeit — Format HH:MM verwenden (z.B. 20:00)",
+      "entity_required": "Bitte eine Trigger-Entität auswählen"
     },
     "abort": {
       "already_configured": "Eine Instanz mit diesem Namen existiert bereits"
@@ -79,7 +88,8 @@
         "sunrise_sunset": "Sonnenaufgang / Sonnenuntergang (−0,83°)",
         "golden_hour": "Goldene Stunde (+6°)",
         "high_sun": "Hohe Sonne (+45°)",
-        "custom": "Benutzerdefiniert…"
+        "custom": "Benutzerdefiniert…",
+        "entity_state": "Entitäts-Zustand (z.B. SUN2 Binary Sensor)…"
       }
     }
   }

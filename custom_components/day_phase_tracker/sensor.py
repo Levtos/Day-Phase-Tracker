@@ -65,7 +65,11 @@ class BasePhaseSensor(SensorEntity):
         self._unsubscribers: list = []
 
     async def async_added_to_hass(self) -> None:
-        entities = [self._tracker.sun_entity] + self._tracker.lux_entities
+        entities = (
+            [self._tracker.sun_entity]
+            + self._tracker.lux_entities
+            + self._tracker.trigger_entities
+        )
         self._unsubscribers.append(
             async_track_state_change_event(self.hass, entities, self._handle_trigger)
         )

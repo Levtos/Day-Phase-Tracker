@@ -36,9 +36,11 @@ CONF_TIME_MAX = "time_max"
 CONF_LUX_ENTITY = "lux_entity"
 CONF_LUX_THRESHOLD = "lux_threshold"
 CONF_LUX_OPERATOR = "lux_operator"
+CONF_TRIGGER_ENTITY = "trigger_entity"
+CONF_TRIGGER_STATE = "trigger_state"
 
 # Standard solar elevation thresholds (degrees).
-# None marks the "enter manually" option in the config flow.
+# None = user picks manually (custom) or via entity state (entity_state).
 ELEVATION_PRESETS: dict[str, float | None] = {
     "astronomical_twilight": -18.0,
     "nautical_twilight": -12.0,
@@ -47,4 +49,5 @@ ELEVATION_PRESETS: dict[str, float | None] = {
     "golden_hour": 6.0,
     "high_sun": 45.0,
     "custom": None,
+    "entity_state": None,  # trigger by entity state instead of elevation
 }

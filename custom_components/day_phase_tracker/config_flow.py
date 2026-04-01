@@ -30,6 +30,8 @@ from .const import (
     CONF_PHASES,
     CONF_SUN_ENTITY,
     CONF_TIME_MAX,
+    CONF_TRIGGER_ENTITY,
+    CONF_TRIGGER_STATE,
     DEFAULT_SUN_ENTITY,
     DOMAIN,
     ELEVATION_PRESETS,
@@ -143,6 +145,9 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 preset = user_input["elevation_preset"]
                 if preset == "custom":
                     return await self.async_step_phase_custom()
+                if preset == "entity_state":
+                    self._pending_phase["elevation_trigger"] = None
+                    return await self.async_step_phase_entity()
                 self._pending_phase["elevation_trigger"] = ELEVATION_PRESETS[preset]
                 return await self.async_step_phase_extra()
 
@@ -201,6 +206,43 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "phase_num": str(idx + 1),
                 "phase_count": str(self._phase_count),
             },
+        )
+
+    # ------------------------------------------------------------------
+    # Step 3b-alt: entity-state trigger (SUN2 binary sensors, etc.)
+    # ------------------------------------------------------------------
+
+    async def async_step_phase_entity(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        idx = len(self._phases)
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            entity_id = user_input.get(CONF_TRIGGER_ENTITY) or ""
+            if not entity_id:
+                errors[CONF_TRIGGER_ENTITY] = "entity_required"
+            else:
+                self._pending_phase[CONF_TRIGGER_ENTITY] = entity_id
+                self._pending_phase[CONF_TRIGGER_STATE] = (
+                    user_input.get(CONF_TRIGGER_STATE, "on").strip() or "on"
+                )
+                return await self.async_step_phase_extra()
+
+        return self.async_show_form(
+            step_id="phase_entity",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_TRIGGER_ENTITY): EntitySelector(),
+                    vol.Optional(CONF_TRIGGER_STATE, default="on"): TextSelector(),
+                }
+            ),
+            description_placeholders={
+                "phase_name": self._pending_phase.get("name", ""),
+                "phase_num": str(idx + 1),
+                "phase_count": str(self._phase_count),
+            },
+            errors=errors,
         )
 
     # ------------------------------------------------------------------

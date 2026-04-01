@@ -8,6 +8,9 @@ PLATFORMS = ["sensor"]
 CONF_NAME = "name"
 CONF_PHASES = "phases"
 CONF_MASTER_PHASES = "master_phases"
+CONF_SUN_ENTITY = "sun_entity"
+
+DEFAULT_SUN_ENTITY = "sun.sun"
 
 DEFAULT_SCAN_SECONDS = 60
 

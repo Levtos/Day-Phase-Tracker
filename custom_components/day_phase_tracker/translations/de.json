@@ -5,7 +5,8 @@
         "title": "Day Phase Tracker",
         "description": "Erstelle eine benannte Tagesphasen-Instanz.",
         "data": {
-          "name": "Instanzname"
+          "name": "Instanzname",
+          "sun_entity": "Sonnen-Entität"
         }
       },
       "phase_count": {

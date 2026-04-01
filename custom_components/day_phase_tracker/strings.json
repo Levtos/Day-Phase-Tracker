@@ -5,7 +5,8 @@
         "title": "Day Phase Tracker",
         "description": "Create a named day-phase tracker instance.",
         "data": {
-          "name": "Instance name"
+          "name": "Instance name",
+          "sun_entity": "Sun entity"
         }
       },
       "phase_count": {

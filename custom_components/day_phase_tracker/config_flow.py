@@ -9,6 +9,8 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.selector import (
+    EntitySelector,
+    EntitySelectorConfig,
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
@@ -19,7 +21,14 @@ from homeassistant.helpers.selector import (
     TimeSelector,
 )
 
-from .const import CONF_MASTER_PHASES, CONF_NAME, CONF_PHASES, DOMAIN
+from .const import (
+    CONF_MASTER_PHASES,
+    CONF_NAME,
+    CONF_PHASES,
+    CONF_SUN_ENTITY,
+    DEFAULT_SUN_ENTITY,
+    DOMAIN,
+)
 
 _DIRECTION_OPTIONS = [
     {"value": "rising", "label": "Rising (↑)"},
@@ -34,6 +43,7 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         self._name: str = ""
+        self._sun_entity: str = DEFAULT_SUN_ENTITY
         self._phase_count: int = 0
         self._phases: list[dict[str, Any]] = []
         self._master_phases: dict[str, list[str]] = {}
@@ -53,11 +63,19 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "name_required"
             else:
                 self._name = name
+                self._sun_entity = user_input[CONF_SUN_ENTITY]
                 return await self.async_step_phase_count()
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({vol.Required(CONF_NAME): TextSelector()}),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_NAME): TextSelector(),
+                    vol.Required(CONF_SUN_ENTITY, default=DEFAULT_SUN_ENTITY): EntitySelector(
+                        EntitySelectorConfig(domain="sun")
+                    ),
+                }
+            ),
             errors=errors,
         )
 
@@ -201,6 +219,7 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             title=self._name,
             data={
                 CONF_NAME: self._name,
+                CONF_SUN_ENTITY: self._sun_entity,
                 CONF_PHASES: self._phases,
                 CONF_MASTER_PHASES: self._master_phases,
             },

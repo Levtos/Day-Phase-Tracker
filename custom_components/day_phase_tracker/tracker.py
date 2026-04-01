@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from .const import DIRECTION_FALLING, DIRECTION_RISING
+from .const import DEFAULT_SUN_ENTITY, DIRECTION_FALLING, DIRECTION_RISING
 
 
 @dataclass(slots=True)
@@ -22,8 +22,15 @@ class PhaseDefinition:
 class DayPhaseTracker:
     """Compute current phase and metadata."""
 
-    def __init__(self, hass: HomeAssistant, phases: list[dict], master_phases: dict[str, list[str]]):
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        phases: list[dict],
+        master_phases: dict[str, list[str]],
+        sun_entity: str = DEFAULT_SUN_ENTITY,
+    ):
         self.hass = hass
+        self.sun_entity = sun_entity
         self.phases = [
             PhaseDefinition(
                 name=item["name"],
@@ -43,7 +50,7 @@ class DayPhaseTracker:
         return now.replace(hour=int(parts[0]), minute=int(parts[1]), second=0, microsecond=0)
 
     def _is_rising(self, now: datetime) -> bool:
-        sun = self.hass.states.get("sun.sun")
+        sun = self.hass.states.get(self.sun_entity)
         if not sun:
             return True
         next_noon_raw = sun.attributes.get("next_noon")
@@ -76,7 +83,7 @@ class DayPhaseTracker:
             self.today_hits = {phase.name: None for phase in self.phases}
             self._today_date = now.date()
 
-        sun = self.hass.states.get("sun.sun")
+        sun = self.hass.states.get(self.sun_entity)
         elevation = float(sun.attributes.get("elevation", 0.0)) if sun else 0.0
         is_rising = self._is_rising(now)
 

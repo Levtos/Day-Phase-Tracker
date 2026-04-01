@@ -29,6 +29,14 @@ DIRECTION_RISING = "rising"
 DIRECTION_FALLING = "falling"
 VALID_DIRECTIONS = {DIRECTION_RISING, DIRECTION_FALLING}
 
+LUX_OPERATOR_AND = "and"
+LUX_OPERATOR_OR = "or"
+
+CONF_TIME_MAX = "time_max"
+CONF_LUX_ENTITY = "lux_entity"
+CONF_LUX_THRESHOLD = "lux_threshold"
+CONF_LUX_OPERATOR = "lux_operator"
+
 # Standard solar elevation thresholds (degrees).
 # None marks the "enter manually" option in the config flow.
 ELEVATION_PRESETS: dict[str, float | None] = {

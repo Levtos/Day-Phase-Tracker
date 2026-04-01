@@ -22,18 +22,29 @@ from homeassistant.helpers.selector import (
 )
 
 from .const import (
+    CONF_LUX_ENTITY,
+    CONF_LUX_OPERATOR,
+    CONF_LUX_THRESHOLD,
     CONF_MASTER_PHASES,
     CONF_NAME,
     CONF_PHASES,
     CONF_SUN_ENTITY,
+    CONF_TIME_MAX,
     DEFAULT_SUN_ENTITY,
     DOMAIN,
     ELEVATION_PRESETS,
+    LUX_OPERATOR_AND,
+    LUX_OPERATOR_OR,
 )
 
 _DIRECTION_OPTIONS = [
     {"value": "rising", "label": "Rising (↑)"},
     {"value": "falling", "label": "Falling (↓)"},
+]
+
+_LUX_OPERATOR_OPTIONS = [
+    {"value": LUX_OPERATOR_AND, "label": "AND — both must match"},
+    {"value": LUX_OPERATOR_OR, "label": "OR — either triggers the phase"},
 ]
 
 
@@ -48,11 +59,11 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._phase_count: int = 0
         self._phases: list[dict[str, Any]] = []
         self._master_phases: dict[str, list[str]] = {}
-        # Holds name/direction/fallback while the user picks a custom elevation
+        # Accumulates fields across the phase sub-steps before appending to _phases
         self._pending_phase: dict[str, Any] = {}
 
     # ------------------------------------------------------------------
-    # Step 1: instance name
+    # Step 1: instance name + sun entity
     # ------------------------------------------------------------------
 
     async def async_step_user(
@@ -108,7 +119,7 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     # ------------------------------------------------------------------
-    # Step 3…N: one form per phase (reuses step_id "phase")
+    # Step 3a: core phase fields
     # ------------------------------------------------------------------
 
     async def async_step_phase(
@@ -132,12 +143,8 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 preset = user_input["elevation_preset"]
                 if preset == "custom":
                     return await self.async_step_phase_custom()
-                self._phases.append(
-                    {**self._pending_phase, "elevation_trigger": ELEVATION_PRESETS[preset]}
-                )
-                if len(self._phases) >= self._phase_count:
-                    return await self.async_step_master_menu()
-                return await self.async_step_phase()
+                self._pending_phase["elevation_trigger"] = ELEVATION_PRESETS[preset]
+                return await self.async_step_phase_extra()
 
         return self.async_show_form(
             step_id="phase",
@@ -167,23 +174,18 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    # ------------------------------------------------------------------
+    # Step 3b (optional): custom elevation number
+    # ------------------------------------------------------------------
+
     async def async_step_phase_custom(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Sub-step shown only when the user picks 'custom' elevation."""
         idx = len(self._phases)
-        errors: dict[str, str] = {}
 
         if user_input is not None:
-            self._phases.append(
-                {
-                    **self._pending_phase,
-                    "elevation_trigger": float(user_input["elevation_trigger"]),
-                }
-            )
-            if len(self._phases) >= self._phase_count:
-                return await self.async_step_master_menu()
-            return await self.async_step_phase()
+            self._pending_phase["elevation_trigger"] = float(user_input["elevation_trigger"])
+            return await self.async_step_phase_extra()
 
         return self.async_show_form(
             step_id="phase_custom",
@@ -192,6 +194,77 @@ class DayPhaseTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required("elevation_trigger"): NumberSelector(
                         NumberSelectorConfig(min=-90, max=90, step=0.1)
                     )
+                }
+            ),
+            description_placeholders={
+                "phase_name": self._pending_phase.get("name", ""),
+                "phase_num": str(idx + 1),
+                "phase_count": str(self._phase_count),
+            },
+        )
+
+    # ------------------------------------------------------------------
+    # Step 3c: optional constraints (lux + time window)
+    # ------------------------------------------------------------------
+
+    async def async_step_phase_extra(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        idx = len(self._phases)
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            # --- time_max (optional text field, empty = no limit) -------
+            time_max_raw = (user_input.get(CONF_TIME_MAX) or "").strip()
+            if time_max_raw:
+                parts = time_max_raw.replace(":", "").ljust(4, "0")
+                try:
+                    h, m = int(time_max_raw.split(":")[0]), int(time_max_raw.split(":")[1])
+                    if not (0 <= h <= 23 and 0 <= m <= 59):
+                        raise ValueError
+                except (ValueError, IndexError):
+                    errors[CONF_TIME_MAX] = "invalid_time"
+
+            if not errors:
+                lux_entity = user_input.get(CONF_LUX_ENTITY) or None
+                self._phases.append(
+                    {
+                        **self._pending_phase,
+                        CONF_TIME_MAX: time_max_raw or None,
+                        CONF_LUX_ENTITY: lux_entity,
+                        CONF_LUX_THRESHOLD: (
+                            float(user_input[CONF_LUX_THRESHOLD])
+                            if lux_entity
+                            else None
+                        ),
+                        CONF_LUX_OPERATOR: (
+                            user_input.get(CONF_LUX_OPERATOR, LUX_OPERATOR_AND)
+                            if lux_entity
+                            else LUX_OPERATOR_AND
+                        ),
+                    }
+                )
+                if len(self._phases) >= self._phase_count:
+                    return await self.async_step_master_menu()
+                return await self.async_step_phase()
+
+        return self.async_show_form(
+            step_id="phase_extra",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(CONF_TIME_MAX, default=""): TextSelector(),
+                    vol.Optional(CONF_LUX_ENTITY): EntitySelector(
+                        EntitySelectorConfig(domain="sensor")
+                    ),
+                    vol.Optional(CONF_LUX_THRESHOLD, default=500): NumberSelector(
+                        NumberSelectorConfig(min=0, max=100000, step=1)
+                    ),
+                    vol.Optional(CONF_LUX_OPERATOR, default=LUX_OPERATOR_AND): SelectSelector(
+                        SelectSelectorConfig(
+                            options=_LUX_OPERATOR_OPTIONS,
+                            mode=SelectSelectorMode.LIST,
+                        )
+                    ),
                 }
             ),
             description_placeholders={

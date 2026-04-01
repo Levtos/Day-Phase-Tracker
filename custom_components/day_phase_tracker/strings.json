@@ -23,7 +23,7 @@
           "name": "Phase name",
           "elevation_preset": "Solar event / elevation",
           "direction": "Direction",
-          "fallback_time": "Fallback time"
+          "fallback_time": "Earliest start time (fallback)"
         }
       },
       "phase_custom": {
@@ -31,6 +31,16 @@
         "description": "Enter the exact elevation threshold in degrees for \"{phase_name}\".",
         "data": {
           "elevation_trigger": "Elevation threshold (°)"
+        }
+      },
+      "phase_extra": {
+        "title": "Constraints – Phase {phase_num} of {phase_count}: \"{phase_name}\"",
+        "description": "All fields are optional. Leave blank to skip.",
+        "data": {
+          "time_max": "Latest end time (HH:MM, empty = no limit)",
+          "lux_entity": "Lux sensor (optional)",
+          "lux_threshold": "Lux threshold",
+          "lux_operator": "Combine lux with elevation via"
         }
       },
       "master_menu": {
@@ -53,7 +63,8 @@
     "error": {
       "name_required": "Name must not be empty",
       "duplicate_phase_name": "This phase name is already used",
-      "min_phases": "Please select at least one sub-phase"
+      "min_phases": "Please select at least one sub-phase",
+      "invalid_time": "Invalid time — use HH:MM format (e.g. 20:00)"
     },
     "abort": {
       "already_configured": "An instance with this name already exists"

@@ -23,7 +23,7 @@
           "name": "Phasenname",
           "elevation_preset": "Solares Ereignis / Elevation",
           "direction": "Richtung",
-          "fallback_time": "Fallback-Zeit"
+          "fallback_time": "Früheste Startzeit (Fallback)"
         }
       },
       "phase_custom": {
@@ -31,6 +31,16 @@
         "description": "Genaue Elevationsschwelle in Grad für \"{phase_name}\" eingeben.",
         "data": {
           "elevation_trigger": "Elevationsschwelle (°)"
+        }
+      },
+      "phase_extra": {
+        "title": "Bedingungen – Phase {phase_num} von {phase_count}: \"{phase_name}\"",
+        "description": "Alle Felder optional — leer lassen zum Überspringen.",
+        "data": {
+          "time_max": "Späteste Endzeit (HH:MM, leer = kein Limit)",
+          "lux_entity": "Lux-Sensor (optional)",
+          "lux_threshold": "Lux-Schwellenwert",
+          "lux_operator": "Lux mit Elevation verknüpfen via"
         }
       },
       "master_menu": {
@@ -53,7 +63,8 @@
     "error": {
       "name_required": "Name darf nicht leer sein",
       "duplicate_phase_name": "Dieser Phasenname wird bereits verwendet",
-      "min_phases": "Bitte mindestens eine Unterphase auswählen"
+      "min_phases": "Bitte mindestens eine Unterphase auswählen",
+      "invalid_time": "Ungültige Zeit — Format HH:MM verwenden (z.B. 20:00)"
     },
     "abort": {
       "already_configured": "Eine Instanz mit diesem Namen existiert bereits"

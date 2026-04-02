@@ -79,6 +79,125 @@
       "already_configured": "An instance with this name already exists"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Day Phase Tracker — Edit",
+        "description": "What would you like to change?",
+        "menu_options": {
+          "edit_settings": "Global settings (sun entity)",
+          "phases_menu": "Edit phases",
+          "masters_menu": "Edit master phase groups",
+          "opt_finish": "Save and close"
+        }
+      },
+      "edit_settings": {
+        "title": "Global settings",
+        "description": "Change the sun entity used as the primary elevation source.",
+        "data": {
+          "sun_entity": "Sun entity"
+        }
+      },
+      "phases_menu": {
+        "title": "Phases ({phase_count} defined)",
+        "description": "Add, edit, remove or reorder phases.",
+        "menu_options": {
+          "phase_add": "Add a new phase",
+          "phase_edit": "Edit an existing phase",
+          "phase_remove": "Remove a phase",
+          "phase_reorder": "Reorder phases",
+          "phases_back": "Back to main menu"
+        }
+      },
+      "phase_edit": {
+        "title": "Edit phase — select",
+        "description": "Choose the phase you want to edit.",
+        "data": {
+          "phase_name": "Phase"
+        }
+      },
+      "phase_remove": {
+        "title": "Remove phase",
+        "description": "Select the phase to delete. It will also be removed from any master groups.",
+        "data": {
+          "phase_name": "Phase to remove"
+        }
+      },
+      "phase_reorder": {
+        "title": "Reorder phases",
+        "description": "Select all phases in the desired order (top = first evaluated).",
+        "data": {
+          "phase_order": "Phase order"
+        }
+      },
+      "opt_phase": {
+        "title": "{action} phase",
+        "description": "Define name, trigger type, direction and fallback time.",
+        "data": {
+          "name": "Phase name",
+          "elevation_preset": "Trigger: solar event / elevation",
+          "direction": "Direction",
+          "fallback_time": "Earliest start time (fallback)"
+        }
+      },
+      "opt_phase_custom": {
+        "title": "Custom elevation — \"{phase_name}\"",
+        "description": "Enter the exact elevation threshold in degrees.",
+        "data": {
+          "elevation_trigger": "Elevation threshold (°)"
+        }
+      },
+      "opt_phase_entity": {
+        "title": "Entity trigger — \"{phase_name}\"",
+        "description": "Select any entity (e.g. binary_sensor.sun2_dawn). The phase is active when the entity matches the expected state.",
+        "data": {
+          "trigger_entity": "Trigger entity",
+          "trigger_state": "Active when state equals"
+        }
+      },
+      "opt_phase_extra": {
+        "title": "Constraints — \"{phase_name}\"",
+        "description": "All fields are optional. Leave blank to skip. Lux is ignored for entity-based triggers.",
+        "data": {
+          "time_max": "Latest end time (HH:MM, empty = no limit)",
+          "lux_entity": "Lux sensor (optional)",
+          "lux_threshold": "Lux threshold",
+          "lux_operator": "Combine lux with elevation via"
+        }
+      },
+      "masters_menu": {
+        "title": "Master phase groups ({group_count} defined)",
+        "description": "Add or remove master phase groups.",
+        "menu_options": {
+          "master_edit_add": "Add / replace a master phase group",
+          "master_edit_remove": "Remove a master phase group",
+          "masters_back": "Back to main menu"
+        }
+      },
+      "master_edit_add": {
+        "title": "Add master phase group",
+        "description": "Give the group a name and select which sub-phases belong to it. If a group with the same name exists it will be replaced.",
+        "data": {
+          "master_name": "Group name",
+          "sub_phases": "Sub-phases"
+        }
+      },
+      "master_edit_remove": {
+        "title": "Remove master phase group",
+        "description": "Select the group to delete.",
+        "data": {
+          "master_name": "Group"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Name must not be empty",
+      "duplicate_phase_name": "This phase name is already used",
+      "min_phases": "Please select at least one sub-phase",
+      "invalid_time": "Invalid time — use HH:MM format (e.g. 20:00)",
+      "entity_required": "Please select a trigger entity"
+    }
+  },
   "selector": {
     "elevation_preset": {
       "options": {

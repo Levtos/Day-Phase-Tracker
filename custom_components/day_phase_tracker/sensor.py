@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -36,7 +36,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up day phase sensor entities."""
-    config = entry.data
+    # Merge base config with any options saved via the OptionsFlow
+    config = {**entry.data, **entry.options}
     tracker = DayPhaseTracker(
         hass,
         config[CONF_PHASES],
@@ -65,7 +66,11 @@ class BasePhaseSensor(SensorEntity):
         self._unsubscribers: list = []
 
     async def async_added_to_hass(self) -> None:
-        entities = [self._tracker.sun_entity] + self._tracker.lux_entities
+        entities = (
+            [self._tracker.sun_entity]
+            + self._tracker.lux_entities
+            + self._tracker.trigger_entities
+        )
         self._unsubscribers.append(
             async_track_state_change_event(self.hass, entities, self._handle_trigger)
         )
@@ -87,12 +92,18 @@ class DayPhaseSensor(BasePhaseSensor):
     """Main day phase sensor."""
 
     _attr_icon = "mdi:weather-sunset"
+    _attr_device_class = SensorDeviceClass.ENUM
 
     def __init__(self, entry: ConfigEntry, tracker: DayPhaseTracker, instance_name: str) -> None:
         super().__init__(entry, tracker)
         object_base = instance_name.lower().replace(" ", "_")
         self._attr_unique_id = f"{entry.entry_id}_{object_base}_dayphase"
         self._attr_name = f"{instance_name} Dayphase"
+
+    @property
+    def options(self) -> list[str]:
+        """Return all possible phase names (required for ENUM device class)."""
+        return [p.name for p in self._tracker.phases]
 
     @property
     def native_value(self) -> str | None:

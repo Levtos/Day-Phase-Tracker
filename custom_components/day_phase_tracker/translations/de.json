@@ -18,10 +18,10 @@
       },
       "phase": {
         "title": "Phase {phase_num} von {phase_count}",
-        "description": "Solares Ereignis, Richtung und Fallback-Zeit für diese Phase festlegen.",
+        "description": "Triggertyp, Richtung und Fallback-Zeit für diese Phase festlegen.",
         "data": {
           "name": "Phasenname",
-          "elevation_preset": "Solares Ereignis / Elevation",
+          "elevation_preset": "Trigger: Solares Ereignis / Elevation",
           "direction": "Richtung",
           "fallback_time": "Früheste Startzeit (Fallback)"
         }
@@ -33,9 +33,17 @@
           "elevation_trigger": "Elevationsschwelle (°)"
         }
       },
+      "phase_entity": {
+        "title": "Entitäts-Trigger – Phase {phase_num} von {phase_count}: \"{phase_name}\"",
+        "description": "Beliebige Entität auswählen (z.B. binary_sensor.sun2_dawn). Die Phase ist aktiv, wenn der Entitätszustand dem erwarteten Wert entspricht.",
+        "data": {
+          "trigger_entity": "Trigger-Entität",
+          "trigger_state": "Aktiv wenn Zustand gleich"
+        }
+      },
       "phase_extra": {
         "title": "Bedingungen – Phase {phase_num} von {phase_count}: \"{phase_name}\"",
-        "description": "Alle Felder optional — leer lassen zum Überspringen.",
+        "description": "Alle Felder optional — leer lassen zum Überspringen. Lux wird bei Entitäts-Triggern ignoriert.",
         "data": {
           "time_max": "Späteste Endzeit (HH:MM, leer = kein Limit)",
           "lux_entity": "Lux-Sensor (optional)",
@@ -64,10 +72,130 @@
       "name_required": "Name darf nicht leer sein",
       "duplicate_phase_name": "Dieser Phasenname wird bereits verwendet",
       "min_phases": "Bitte mindestens eine Unterphase auswählen",
-      "invalid_time": "Ungültige Zeit — Format HH:MM verwenden (z.B. 20:00)"
+      "invalid_time": "Ungültige Zeit — Format HH:MM verwenden (z.B. 20:00)",
+      "entity_required": "Bitte eine Trigger-Entität auswählen"
     },
     "abort": {
       "already_configured": "Eine Instanz mit diesem Namen existiert bereits"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Day Phase Tracker — Bearbeiten",
+        "description": "Was möchtest du ändern?",
+        "menu_options": {
+          "edit_settings": "Globale Einstellungen (Sonnen-Entität)",
+          "phases_menu": "Phasen bearbeiten",
+          "masters_menu": "Masterphasen-Gruppen bearbeiten",
+          "opt_finish": "Speichern und schließen"
+        }
+      },
+      "edit_settings": {
+        "title": "Globale Einstellungen",
+        "description": "Sonnen-Entität ändern, die als primäre Elevationsquelle dient.",
+        "data": {
+          "sun_entity": "Sonnen-Entität"
+        }
+      },
+      "phases_menu": {
+        "title": "Phasen ({phase_count} definiert)",
+        "description": "Phasen hinzufügen, bearbeiten, entfernen oder umsortieren.",
+        "menu_options": {
+          "phase_add": "Neue Phase hinzufügen",
+          "phase_edit": "Bestehende Phase bearbeiten",
+          "phase_remove": "Phase entfernen",
+          "phase_reorder": "Reihenfolge der Phasen ändern",
+          "phases_back": "Zurück zum Hauptmenü"
+        }
+      },
+      "phase_edit": {
+        "title": "Phase bearbeiten — Auswahl",
+        "description": "Wähle die Phase, die du bearbeiten möchtest.",
+        "data": {
+          "phase_name": "Phase"
+        }
+      },
+      "phase_remove": {
+        "title": "Phase entfernen",
+        "description": "Wähle die Phase zum Löschen. Sie wird auch aus allen Masterphasen-Gruppen entfernt.",
+        "data": {
+          "phase_name": "Zu entfernende Phase"
+        }
+      },
+      "phase_reorder": {
+        "title": "Reihenfolge der Phasen",
+        "description": "Alle Phasen in der gewünschten Reihenfolge auswählen (oben = erste Auswertung).",
+        "data": {
+          "phase_order": "Phasenreihenfolge"
+        }
+      },
+      "opt_phase": {
+        "title": "Phase {action}",
+        "description": "Name, Triggertyp, Richtung und Fallback-Zeit festlegen.",
+        "data": {
+          "name": "Phasenname",
+          "elevation_preset": "Trigger: Solares Ereignis / Elevation",
+          "direction": "Richtung",
+          "fallback_time": "Früheste Startzeit (Fallback)"
+        }
+      },
+      "opt_phase_custom": {
+        "title": "Benutzerdefinierte Elevation — \"{phase_name}\"",
+        "description": "Genaue Elevationsschwelle in Grad eingeben.",
+        "data": {
+          "elevation_trigger": "Elevationsschwelle (°)"
+        }
+      },
+      "opt_phase_entity": {
+        "title": "Entitäts-Trigger — \"{phase_name}\"",
+        "description": "Beliebige Entität auswählen (z.B. binary_sensor.sun2_dawn). Die Phase ist aktiv, wenn der Entitätszustand dem erwarteten Wert entspricht.",
+        "data": {
+          "trigger_entity": "Trigger-Entität",
+          "trigger_state": "Aktiv wenn Zustand gleich"
+        }
+      },
+      "opt_phase_extra": {
+        "title": "Bedingungen — \"{phase_name}\"",
+        "description": "Alle Felder optional — leer lassen zum Überspringen. Lux wird bei Entitäts-Triggern ignoriert.",
+        "data": {
+          "time_max": "Späteste Endzeit (HH:MM, leer = kein Limit)",
+          "lux_entity": "Lux-Sensor (optional)",
+          "lux_threshold": "Lux-Schwellenwert",
+          "lux_operator": "Lux mit Elevation verknüpfen via"
+        }
+      },
+      "masters_menu": {
+        "title": "Masterphasen-Gruppen ({group_count} definiert)",
+        "description": "Masterphasen-Gruppen hinzufügen oder entfernen.",
+        "menu_options": {
+          "master_edit_add": "Masterphasen-Gruppe hinzufügen / ersetzen",
+          "master_edit_remove": "Masterphasen-Gruppe entfernen",
+          "masters_back": "Zurück zum Hauptmenü"
+        }
+      },
+      "master_edit_add": {
+        "title": "Masterphasen-Gruppe hinzufügen",
+        "description": "Gruppenname vergeben und zugehörige Unterphasen auswählen. Eine bestehende Gruppe mit gleichem Namen wird ersetzt.",
+        "data": {
+          "master_name": "Gruppenname",
+          "sub_phases": "Unterphasen"
+        }
+      },
+      "master_edit_remove": {
+        "title": "Masterphasen-Gruppe entfernen",
+        "description": "Gruppe zum Löschen auswählen.",
+        "data": {
+          "master_name": "Gruppe"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Name darf nicht leer sein",
+      "duplicate_phase_name": "Dieser Phasenname wird bereits verwendet",
+      "min_phases": "Bitte mindestens eine Unterphase auswählen",
+      "invalid_time": "Ungültige Zeit — Format HH:MM verwenden (z.B. 20:00)",
+      "entity_required": "Bitte eine Trigger-Entität auswählen"
     }
   },
   "selector": {
@@ -79,7 +207,8 @@
         "sunrise_sunset": "Sonnenaufgang / Sonnenuntergang (−0,83°)",
         "golden_hour": "Goldene Stunde (+6°)",
         "high_sun": "Hohe Sonne (+45°)",
-        "custom": "Benutzerdefiniert…"
+        "custom": "Benutzerdefiniert…",
+        "entity_state": "Entitäts-Zustand (z.B. SUN2 Binary Sensor)…"
       }
     }
   }
